@@ -1,0 +1,27 @@
+body {
+    padding: 10px;
+}
+
+.container-fluid {
+    border: 1px solid grey;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.container-fluid .row {
+    height: 250px;
+}
+
+.container-fluid .col-4 {
+    display: flex;
+    justify-content: center;
+}
+
+.container-fluid .col-8 {
+    padding-top: 20px;
+}
+
+.container-fluid img {
+    max-width: auto;
+    max-height: 250px;
+}
