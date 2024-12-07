@@ -1,0 +1,36 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Watchlist</h2>
+
+    {% for listing in watchlist %}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-4">
+                    {% if listing.image %}
+                    <img src="{{listing.image}}" alt="{{listing.title}}">
+                    {% else %}
+                    <img src="https://icons.veryicon.com/png/o/miscellaneous/linear/camera-265.png" alt="No image">
+                    {% endif %}
+                </div>
+                <div class="col-8">
+                    <a href="{% url 'listing' listing.title %}" style="color: black">
+                        <h3>{{listing.title}}</h3>
+                    </a>
+
+                    {% if listing.current_bid == 0.00 %}
+                        <h5>Price: ${{listing.starting_price}}</h5>
+                    {% else %}
+                        <h5>Price: ${{listing.current_bid}}</h5>
+                    {% endif %}
+
+                    <p>{{ listing.description }}</p>
+                    <p>Created {{ listing.date_posted }}</p>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <p>No items listed</p>
+    {% endfor %}
+
+{% endblock %}

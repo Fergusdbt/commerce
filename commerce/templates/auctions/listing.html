@@ -1,0 +1,116 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div>
+        <h2>Listing: {{ listing.title }}</h2>
+        {% if user.is_authenticated and request.user not in listing.watchers.all %}
+            <form action="{% url 'listing' listing.title %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input class="btn btn-primary" type="submit" name="button" value="Add to watchlist">
+                </div>
+            </form>
+        {% endif %}
+        {% if user.is_authenticated and request.user in listing.watchers.all %}
+            <form action="{% url 'listing' listing.title %}" method="post" >
+                {% csrf_token %}
+                <div class="form-group">
+                    <input class="btn btn-primary" type="submit" name="button" value="Remove from watchlist">
+                </div>
+            </form>
+        {% endif %}
+    </div>
+
+    {% if listing.image %}
+        <img src="{{listing.image}}" alt="{{listing.title}}" height="300px" max-width="100%" class="p-4">
+    {% else %}
+        <img src="https://icons.veryicon.com/png/o/miscellaneous/linear/camera-265.png" alt="No image" height="300px" max-width="100%" class="p-4">
+    {% endif %}
+    <p>{{listing.description}}</p>
+
+    {% if listing.current_bid == 0.00 %}
+        <h5>${{ listing.starting_price}} </h5>
+    {% else %}
+        <h5>${{ listing.current_bid }}</h5>
+    {% endif %}
+
+    {% if listing.bid_count == 1 %}
+        <p>1 bid so far.
+            {% if listing.bid_count > 0 and listing.user == listing.highest_bidder %}
+                Your bid is the current bid.
+            {% endif %}
+        </p>
+    {% else %}
+        <p>{{ listing.bid_count }} bids so far.
+            {% if listing.bid_count > 0 and listing.user == listing.highest_bidder %}
+                Your bid is the current bid.
+            {% endif %}
+        </p>
+    {% endif %}
+
+    {% if message %}
+        <div>{{ message }}</div>
+    {% endif %}
+
+    {% if user.is_authenticated and user != listing.user and listing.sold == False %}
+        <form action="{% url 'listing' listing.title %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <input autofocus required class="form-control mb-3" type="number" name="bid" placeholder="Bid ($)" step="0.01" min="0">
+                <input class="btn btn-primary" type="submit" name="button" value="Place Bid">
+            </div>
+        </form>
+    {% endif %}
+
+    {% if user == listing.user %}
+        <form action="{% url 'listing' listing.title %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <input class="btn btn-danger" type="submit" name="button" value="Close auction">
+            </div>
+        </form>
+    {% endif %}
+
+    {% if listing.sold == True and user == listing.highest_bidder %}
+        <p>You have successfully purchased {{ listing.title }} from {{ listing.user }} for ${{ listing.current_bid }}.</p>
+    {% endif %}
+
+    {% if listing.sold == True %}
+        <p>Auction closed.</p>
+    {% endif %}
+
+    <h5>Details</h5>
+    <ul>
+        <li>Listed by: {{ listing.user }}</li>
+        {% if listing.category %}
+            <li>Category: {{ listing.category }}</li>
+        {% else %}
+            <li>No category listed</li>
+        {% endif %}
+        <li>Created {{ listing.date_posted }}</li>
+    </ul>
+
+    <h5>Comments</h5>
+    {% if user.is_authenticated %}
+        <form action="{% url 'listing' listing.title %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <input autofocus required class="form-control mb-3" type="text" name="comment" placeholder="Add a comment" max_length="200">
+                <input class="btn btn-primary" type="submit" name="button" value="Comment">
+            </div>
+        </form>
+    {% endif %}
+
+    {% for comment in listing.comments.all %}
+        <div class="container-fluid">
+            <strong>{{ comment.user }}</strong>
+            <p>{{ comment.content }}</p>
+            <p>Posted {{ comment.date_posted }}</p>
+        </div>
+    {% empty %}
+        <p>No comments</p>
+    {% endfor %}
+
+
+
+{% endblock %}
